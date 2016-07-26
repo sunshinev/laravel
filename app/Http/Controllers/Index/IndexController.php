@@ -10,11 +10,8 @@ class IndexController extends Controller
 {
     //
     public function index() {
-        Auth::user();
-//        $db  = new \PDO('mysql:host=localhost;dbname=laravel','root','');
-//        $qres = $db -> query("show tables");
-//        $r = $qres->fetchall();
-//        var_dump($r);
+
+        $user = Auth::user();
         return view('index.index',[
                 
         ]);

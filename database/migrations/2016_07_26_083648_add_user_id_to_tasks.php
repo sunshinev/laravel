@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTestTables extends Migration
+class AddUserIdToTasks extends Migration
 {
     /**
      * Run the migrations.
@@ -12,9 +12,8 @@ class CreateTestTables extends Migration
      */
     public function up()
     {
-        Schema::create('test', function (Blueprint $table) {
-            $table->increments('id');
-            $table->timestamps();
+        Schema::table('tasks', function ($table) {
+            $table->integer('user_id')->index();
         });
     }
 
@@ -25,6 +24,8 @@ class CreateTestTables extends Migration
      */
     public function down()
     {
-        Schema::drop('test');
+        Schema::table('tasks', function ($table) {
+            $table->dropColumn('user_id');
+        });
     }
 }
