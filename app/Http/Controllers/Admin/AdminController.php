@@ -10,8 +10,20 @@ use App\Http\Controllers\Controller;
 class AdminController extends Controller
 {
     //
+    public function __construct() {
+
+    }
     public function index() {
         
         return view('admin.index');   
+    }
+    public function articleAdd() {
+        return view('admin.articleadd');
+    }
+    public function articleManage() {
+        return view('admin.articlemanage');
+    }
+    public function classManage() {
+        return view('admin.classmanage');
     }
 }

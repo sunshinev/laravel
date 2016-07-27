@@ -1,7 +1,8 @@
-@extends("common.main")
-@include("index.navi")
-@section("main_body")
-   <div class="row">
-   123
-   </div>
+@extends("index.body")
+@section("body")
+    <div class="row">
+        <div class="col-sm-6" >
+
+        </div>
+    </div>
 @stop
