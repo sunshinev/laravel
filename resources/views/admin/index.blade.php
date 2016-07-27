@@ -2,7 +2,7 @@
 @section("body")
     <div class="row">
         <div class="col-sm-2">
-        @include('admin.left');
+        @include('admin.left')
         </div>
         <div class="col-sm-10">
 

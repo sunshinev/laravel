@@ -20,6 +20,8 @@
     <script>
     var Editor = (function() {
 
+        var article_id = '';
+
         var _getTitle = function() {
             return document.getElementById('article_title').value;
         }
@@ -58,7 +60,8 @@
                 data:{
                     article_title:title,
                     article_content:content,
-                    article_sign:sign
+                    article_sign:sign,
+                    article_id:article_id
                     },
                 url:url,
                 headers:{
@@ -66,6 +69,7 @@
                 },
                 success:function(d,s) {
                     if(d.res == 100) {
+                        article_id = d.article_id;
                         alert('保存草稿成功');
                     }else {
                         alert(d.msg);
