@@ -32,9 +32,9 @@ Route::group(['middleware'=>'auth'],function() {
     Route::get('admin/class/manage', 'Admin\AdminController@classManage');
     // post «Î«Û¥¶¿Ì
     Route::post('admin/article/delete','Article\ArticleController@delete');
-    Route::post('admin/article/save','Article\ArticleController@save');
+    Route::post('admin/article/draft','Article\ArticleController@draft');
     Route::post('admin/article/publish','Article\ArticleController@publish');
-    
+
 
 });
 

@@ -10,7 +10,12 @@ use App\Http\Controllers\Controller;
 class ArticleController extends Controller
 {
     //
-    public function addArticle() {
-        return view('admin.article_add');
+    public function draft(Request $request) {
+
+        $param['article_title'] = $request->input('article_title');
+        $param['article_content'] = $request->input('article_content');
+        $param['article_sign'] = $request->input('article_sign');
+
+
     }
 }

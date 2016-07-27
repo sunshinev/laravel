@@ -18,12 +18,12 @@ class AdminController extends Controller
         return view('admin.index');   
     }
     public function articleAdd() {
-        return view('admin.articleadd');
+        return view('admin.article.add');
     }
     public function articleManage() {
-        return view('admin.articlemanage');
+        return view('admin.article.manage');
     }
     public function classManage() {
-        return view('admin.classmanage');
+        return view('admin.class.manage');
     }
 }
