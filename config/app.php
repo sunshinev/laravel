@@ -12,7 +12,7 @@ return [
     | application. If disabled, a simple generic error page is shown.
     |
     */
-    'debug' => env('APP_DEBUG', false),
+    'debug' => env('APP_DEBUG', true),
 
     /*
     |--------------------------------------------------------------------------
@@ -77,7 +77,7 @@ return [
     |
     */
 
-    'key' => env('APP_KEY', 'SomeRandomString'),
+    'key' => env('APP_KEY', 'p16JIsycFpaNqS9zYbwKLjyBj7XSKrPo'),
 
     'cipher' => 'AES-256-CBC',
 
