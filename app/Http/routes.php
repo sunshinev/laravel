@@ -15,22 +15,22 @@ Route::get('welcome', function () {
 });
 
 Route::get('home','Index\IndexController@index');
-// 认证路由...
+// 璁よ瘉璺敱...
 Route::get('auth/login', 'Auth\AuthController@getLogin');
 Route::post('auth/login', 'Auth\AuthController@postLogin');
 Route::get('auth/logout', 'Auth\AuthController@getLogout');
 
-// 注册路由...
+// 娉ㄥ唽璺敱...
 Route::get('auth/register', 'Auth\AuthController@getRegister');
 Route::post('auth/register', 'Auth\AuthController@postRegister');
 
 Route::group(['middleware'=>'auth'],function() {
-    // 模板指向
+    // 妯℃澘鎸囧悜
     Route::get('admin', 'Admin\AdminController@index');
     Route::get('admin/article/add', 'Admin\AdminController@articleAdd');
     Route::get('admin/article/manage', 'Admin\AdminController@articleManage');
     Route::get('admin/class/manage', 'Admin\AdminController@classManage');
-    // post 请求处理
+    // post 璇锋眰澶勭悊
     Route::post('admin/article/delete','Article\ArticleController@delete');
     Route::post('admin/article/draft','Article\ArticleController@draft');
     Route::post('admin/article/publish','Article\ArticleController@publish');
