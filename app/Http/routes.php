@@ -35,7 +35,8 @@ Route::group(['middleware'=>'auth'],function() {
     Route::post('admin/article/draft','Article\ArticleController@draft');
     Route::post('admin/article/publish','Article\ArticleController@publish');
 
-
+    // 参数模板请求
+    Route::get('admin/article/edit/{article_id}','Admin\AdminController@articleEdit');
 });
 
 
