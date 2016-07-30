@@ -14,7 +14,8 @@ Route::get('welcome', function () {
     return view('welcome');
 });
 
-Route::get('home','Index\IndexController@index');
+Route::get('/','Index\IndexController@index');
+Route::get('/article/{article_id}','Index\IndexController@article');
 // 认证路由...
 Route::get('auth/login', 'Auth\AuthController@getLogin');
 Route::post('auth/login', 'Auth\AuthController@postLogin');

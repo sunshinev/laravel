@@ -21,7 +21,7 @@
                         @elseif( $item->status=='draft' )
                             <button class="btn btn-sm btn-primary">发布</button>
                         @endif
-                        <button class="btn btn-sm btn-success">编辑</button>
+                        <button class="btn btn-sm btn-success" onclick="window.location.href='{{ URL::to('admin/article/edit/'.$item->id)}}'">编辑</button>
                     </td>
                 </tr>
             @endforeach

@@ -5,7 +5,7 @@
         @include('admin.left')
         </div>
         <div class="col-sm-10">
-
+            Index
         </div>
     </div>
 @stop
