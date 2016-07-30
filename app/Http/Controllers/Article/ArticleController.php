@@ -12,12 +12,9 @@ use App\Article;
 class ArticleController extends Controller
 {
     /**
-     * 保存为草稿
-    */
-    public function draft(Request $request) {
-        return response()->json($this->save($request));
-    }
-
+     * 保存通用方法
+     * 内部区分第一次保存，还是自动保存
+     * */
     public function save($request) {
         $article_title = $request->input('article_title');
         $article_content = $request->input('article_content');
@@ -46,9 +43,16 @@ class ArticleController extends Controller
             return ['res'=>100,'msg'=>'成功','article_id'=>$article->id];
         }
     }
+    /**
+     * 保存为草稿
+    */
+    public function draft(Request $request)
+    {
+        return response()->json($this->save($request));
+    }
 
     /**
-     * 先保存成功后，在调用publish修改状态为发布
+     * 保存并发布，先保存成功后，在调用publish修改状态为发布
      *
     */
     public function publish(Request $request) {
