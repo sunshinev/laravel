@@ -1,0 +1,10 @@
+/vendor
+/node_modules
+Homestead.yaml
+Homestead.json
+.env
+<<<<<<< HEAD
+/.idea
+=======
+/.idea
+>>>>>>> 812a5815e41d7091d05256f711f3d174a2124ac9

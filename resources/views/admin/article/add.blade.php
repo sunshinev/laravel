@@ -1,4 +1,4 @@
-@extends("admin.left_body")
+@extends("admin.main")
 @section("right")
     <div class="row">
         <div class="col-md-10">
@@ -70,7 +70,10 @@
                 success:function(d,s) {
                     if(d.res == 100) {
                         article_id = d.article_id;
-                        alert('保存草稿成功');
+                        alert('保存成功');
+                        if(type == 'publish') {
+                            location.href='{{ URL::to('admin/article/manage') }}';
+                        }
                     }else {
                         alert(d.msg);
                     }
