@@ -26,18 +26,26 @@ Route::get('auth/register', 'Auth\AuthController@getRegister');
 Route::post('auth/register', 'Auth\AuthController@postRegister');
 
 Route::group(['middleware'=>'auth'],function() {
+
+    // 文章管理 begin
     // 模板指向
     Route::get('admin', 'Admin\AdminController@index');
     Route::get('admin/article/add', 'Admin\AdminController@articleAdd');
     Route::get('admin/article/manage', 'Admin\AdminController@articleManage');
-    Route::get('admin/class/manage', 'Admin\AdminController@classManage');
-    // post 请求处理
-    Route::post('admin/article/delete','Article\ArticleController@delete');
-    Route::post('admin/article/draft','Article\ArticleController@draft');
-    Route::post('admin/article/publish','Article\ArticleController@publish');
 
-    // 参数模板请求
+    Route::post('admin/article/delete','Admin\ArticleController@delete');
+    Route::post('admin/article/draft','Admin\ArticleController@draft');
+    Route::post('admin/article/publish','Admin\ArticleController@publish');
+
     Route::get('admin/article/edit/{article_id}','Admin\AdminController@articleEdit');
+    // 文章管理 end
+
+    // 分类管理 begin
+    Route::get('admin/category/manage','Admin\AdminController@categoryManage');
+
+    Route::post('admin/category/add','Admin\CategoryController@insertNode');
+    // 分类管理 end
+
 });
 
 

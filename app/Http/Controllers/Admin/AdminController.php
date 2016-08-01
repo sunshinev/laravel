@@ -2,12 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Category;
 use Illuminate\Http\Request;
 
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 
 use App\Article;
+use App\Http\Controllers\Admin\CategoryController;
 
 class AdminController extends Controller
 {
@@ -45,7 +47,16 @@ class AdminController extends Controller
 
         return view('admin.article.manage',['article_list'=>$list]);
     }
-    public function classManage() {
-        return view('admin.class.manage');
+    /*
+     * 分类管理模板加载，预加载父类
+     * 或者可以通过ajax加载父类
+     */
+    public function categoryManage(Request $request) {
+
+        $list = Category::where('level',1)->get();
+
+        return view('admin.category.manage',[
+            'category_list'=>$list
+        ]);
     }
 }
