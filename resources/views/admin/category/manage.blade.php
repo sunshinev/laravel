@@ -12,7 +12,7 @@
             <ul class="list-group">
                 @if ($category_list->count())
                     @foreach($category_list as $item)
-                    <li class="list-group-item" onclick="Category.dropDown('{{ $item->id }}')">
+                    <li class="list-group-item" onclick="location.href='{{ URL::to('admin/category/manage/0_'.$item->id) }}'">
                         {{$item->title}}
                     </li>
                     <li class="list-group-item" style="display:none" id="dropdown_{{ $item->id }}">

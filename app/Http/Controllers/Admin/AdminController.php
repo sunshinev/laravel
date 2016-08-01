@@ -59,4 +59,15 @@ class AdminController extends Controller
             'category_list'=>$list
         ]);
     }
+
+    /*
+     * 接受参数处理分类展示
+     */
+    public function categoryManageWithParams(Request $request) {
+
+        // 根据提供的子节点的ID，来生成列表地图
+        $child_id = $request->child_id;
+        
+    }
+
 }
