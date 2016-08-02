@@ -42,7 +42,7 @@ Route::group(['middleware'=>'auth'],function() {
 
     // 分类管理 begin
     Route::get('admin/category/manage','Admin\AdminController@categoryManage');
-    Route::get('admin/category/manage/{pid}_{child_id}','Admin\AdminController@categoryManageWithParams');
+    Route::get('admin/category/manage/{child_id}_{pid}','Admin\AdminController@categoryManageWithParams');
 
     Route::post('admin/category/add','Admin\CategoryController@insertNode');
     // 分类管理 end
