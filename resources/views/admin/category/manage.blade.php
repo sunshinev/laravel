@@ -19,7 +19,7 @@
                         @if($current_node->id == $item->id)
                         <li class="list-group-item">
                             <button class="btn btn-sm btn-info" onclick="$('#addModal').modal('show')"><span class="glyphicon glyphicon-plus"></span></button>
-                            <button class="btn btn-sm btn-primary"><span class="glyphicon glyphicon-remove"></span></button>
+                            <button class="btn btn-sm btn-danger"><span class="glyphicon glyphicon-remove"></span></button>
                             <button class="btn btn-sm btn-success"><span class="glyphicon glyphicon-pushpin"></span></button>
                         </li>
                         @endif
@@ -48,7 +48,7 @@
                         @if($current_node->id == $item->id)
                             <li class="list-group-item">
                                 <button class="btn btn-sm btn-info" onclick="$('#addModal').modal('show')"><span class="glyphicon glyphicon-plus"></span></button>
-                                <button class="btn btn-sm btn-primary"><span class="glyphicon glyphicon-remove"></span></button>
+                                <button class="btn btn-sm btn-danger"><span class="glyphicon glyphicon-remove"></span></button>
                                 <button class="btn btn-sm btn-success"><span class="glyphicon glyphicon-pushpin"></span></button>
                             </li>
                         @endif
@@ -129,16 +129,9 @@
                 _add(pid,title);
             }
 
-
-            // 点击触发下拉工具条
-            var dropDown = function(id) {
-                $("[id^=dropdown_]").slideUp('fast');
-                $("#dropdown_"+id).slideToggle();
-            }
             return {
                 addParent:addParent,
-                addChild:addChild,
-                dropDown:dropDown
+                addChild:addChild
             }
 
         }())

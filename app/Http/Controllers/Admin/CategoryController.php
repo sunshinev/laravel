@@ -96,6 +96,20 @@ class CategoryController extends Controller
 
         return $list;
     }
+    /*
+     *
+     */
+    function getNextLayerNodesByAjax(Request $request) {
+        $pid = $request->category_id;
+
+        $p_info = Category::where('id',$pid)->first();
+
+        $list = $this->getNextLayerNodes($pid);
+        if($list->count()) {
+            return response()->json(['res'=>100,'msg'=>'success','list'=>$list,'level'=>$p_info->level+1]);
+        }
+        return response()->json(['res'=>101,'msg'=>'empty','list'=>null,'level'=>$p_info->level+1]);
+    }
 
 
 }

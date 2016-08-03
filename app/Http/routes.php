@@ -36,6 +36,7 @@ Route::group(['middleware'=>'auth'],function() {
     Route::post('admin/article/delete','Admin\ArticleController@delete');
     Route::post('admin/article/draft','Admin\ArticleController@draft');
     Route::post('admin/article/publish','Admin\ArticleController@publish');
+    Route::post('admin/category/getNextLayerNodesByAjax','Admin\CategoryController@getNextLayerNodesByAjax');
 
     Route::get('admin/article/edit/{article_id}','Admin\AdminController@articleEdit');
     // 文章管理 end

@@ -27,7 +27,10 @@ class AdminController extends Controller
      */
     public function articleAdd(Request $request) {
 
-        return view('admin.article.add');
+        // 加载根路径列表
+        $root_list = Category::where('level',1)->get();
+
+        return view('admin.article.add',['root_list'=>$root_list]);
     }
     /*
      * 文章编辑
