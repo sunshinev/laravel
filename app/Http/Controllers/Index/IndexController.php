@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 
 use App\Article;
 use App\Http\Controllers\HyperDownController;
+use App\Category;
 
 class IndexController extends Controller
 {
@@ -36,6 +37,18 @@ class IndexController extends Controller
         $hyper_parse = new HyperDownController();
         $article_info->article_content = $hyper_parse->makeHtml($article_info->article_content);
 
-        return view('index.article',['article_info'=>$article_info]);
+        // 加载分支路径节点
+        $node_info = Category::where('id',$article_info->category_id)->first();
+
+        $parent_list = Category::where('right_val','>=',$node_info->right_val)
+            ->where('left_val','<=',$node_info->left_val)
+            ->orderBy('left_val','asc')
+            ->get();
+
+        return view('index.article',[
+            'article_info'=>$article_info,
+            'parent_list'=>$parent_list
+
+        ]);
     }
 }

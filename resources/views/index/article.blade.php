@@ -2,6 +2,11 @@
 @section('body')
     <div class="row">
         <div class="col-md-8 col-md-offset-1">
+            <ol class="breadcrumb">
+                @foreach ($parent_list as $item)
+                    <li>{{ $item->title }}</li>
+                @endforeach
+            </ol>
             <h3>{{ $article_info->article_title }}</h3>
             <div>
                 @foreach ($article_info->article_sign as $sign)
