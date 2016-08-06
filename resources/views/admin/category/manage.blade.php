@@ -19,8 +19,8 @@
                         @if($current_node->id == $item->id)
                         <li class="list-group-item">
                             <button class="btn btn-sm btn-info" onclick="$('#addModal').modal('show')"><span class="glyphicon glyphicon-plus"></span></button>
-                            <button class="btn btn-sm btn-danger"><span class="glyphicon glyphicon-remove"></span></button>
-                            <button class="btn btn-sm btn-success"><span class="glyphicon glyphicon-pushpin"></span></button>
+                            <button class="btn btn-sm btn-danger" ><span class="glyphicon glyphicon-remove"></span></button>
+                            <button class="btn btn-sm btn-success" onclick="$('#editTitleModal').modal('show')"><span class="glyphicon glyphicon-pushpin"></span></button>
                         </li>
                         @endif
                         @else
@@ -83,8 +83,28 @@
         </div><!-- /.modal-content -->
     </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
-    @endif
     <!-- 模态框 end -->
+    <!-- 编辑标题 begin -->
+    <!-- 模态框BEGIN -->
+    <div class="modal fade" id="editTitleModal">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">修改“{{ $current_node->title }}”标题</h4>
+                </div>
+                <div class="modal-body">
+                    <input type="text" class="form-control" id="new_title" placeholder="新栏目名称">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">关闭</button>
+                    <button type="button" class="btn btn-success" onclick="Category.editTitle('{{ $current_node->id }}')">确认保存</button>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+    <!-- 编辑标题 end -->
+    @endif
     <script>
         var Category = (function() {
 
@@ -129,9 +149,42 @@
                 _add(pid,title);
             }
 
+
+            // 编辑栏目标题
+            var _edit = function(category_id,title) {
+                $.ajax({
+                    type:'post',
+                    data:{
+                        'title':title,
+                        'category_id':category_id
+                    },
+                    url:"{{ asset('admin/category/edit') }}",
+                    headers:{
+                        'X-CSRF-TOKEN':"{{ csrf_token() }}"
+                    },
+                    success:function(d,s) {
+                        if(d.res == 100) {
+                            location.href='';
+                        }else {
+                            alert(d.msg);
+                        }
+                    }
+                })
+            }
+
+            var editTitle = function(category_id) {
+                var title = $("#new_title").val();
+                if(!title) {
+                    alert("请填写新标题");
+                    return;
+                }
+                _edit(category_id,title);
+            }
+
             return {
                 addParent:addParent,
-                addChild:addChild
+                addChild:addChild,
+                editTitle:editTitle
             }
 
         }())

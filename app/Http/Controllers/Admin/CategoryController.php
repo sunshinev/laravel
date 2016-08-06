@@ -111,5 +111,27 @@ class CategoryController extends Controller
         return response()->json(['res'=>101,'msg'=>'empty','list'=>null,'level'=>$p_info->level+1]);
     }
 
+    /*
+     * 更新节点内容
+     */
+    function updateNode(Request $request) {
+        $category_id = $request->category_id;
+        $category_title = $request->title;
+
+        if(!$category_title) {
+            return response()->json(['res'=>101,'msg'=>'标题不能为空']);
+        }
+
+        $res = Category::where('id',$category_id)
+            ->update([
+                'title'=>$category_title
+            ]);
+
+        if($res) {
+            return response()->json(['res'=>100,'msg'=>'success']);
+        }
+        return response()->json(['res'=>101,'msg'=>'有错误']);
+    }
+
 
 }

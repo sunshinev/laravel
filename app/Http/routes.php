@@ -46,6 +46,7 @@ Route::group(['middleware'=>'auth'],function() {
     Route::get('admin/category/manage/{child_id}_{pid}','Admin\AdminController@categoryManageWithParams');
 
     Route::post('admin/category/add','Admin\CategoryController@insertNode');
+    Route::post('admin/category/edit','Admin\CategoryController@updateNode');
     // 分类管理 end
 
 });
