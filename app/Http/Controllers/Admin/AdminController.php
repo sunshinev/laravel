@@ -38,7 +38,60 @@ class AdminController extends Controller
     public function articleEdit(Request $request) {
         $article_id = $request->article_id;
         $article_info = Article::where('id',$article_id)->first();
-        return view('admin.article.edit',['article_info'=>$article_info,'article_id'=>$article_id]);
+
+        // 加载节点信息
+        $node_info  = Category::where('id',$article_info->category_id)->first();
+
+        // 加载分支路径
+        $parent_list = Category::where('right_val','>=',$node_info->right_val)
+            ->where('left_val','<=',$node_info->left_val)
+            ->orderBy('left_val','asc')
+            ->get();
+
+        // 根据最外层的节点来加载整个分支树，最大层限制为当前child的层级
+        $root_node = $parent_list[0];
+
+        // 该分支列表
+        $branch_list = Category::where('level','<=',$node_info->level)
+            ->where('right_val','<',$root_node->right_val)
+            ->where('left_val','>',$root_node->left_val)
+            ->get();
+
+        // 构造分支路径新数组，按照level和id分级
+        $parent_list_new = [];
+        foreach($parent_list as $key=>$item) {
+            $parent_list_new[$item->level][$item->id] = $item;
+        }
+        // 生成一个已选中栏目的数组，用level作为索引
+        $current_list = [];
+
+        // 遍历分支构造，按照level进行分支
+        $branch_list_new = [];
+        foreach($branch_list as $key=>$item) {
+            if(isset($parent_list_new[$item->level][$item->id])) {
+                // 标记分支节点 ，此处需要在模型里添加修改器
+                $item->is_current = true;
+                $current_list[$item->level] = $item;
+            }
+            $branch_list_new[$item->level][$item->id] = $item;
+        }
+        // 加载根节点，将根节点也合并到level数组中
+        $root_list = Category::where('level',1)->get();
+        foreach($root_list as $item) {
+            if(isset($parent_list_new[$item->level][$item->id])) {
+                $item->is_current = true;
+                $current_list[$item->level] = $item;
+            }
+            $branch_list_new[$item->level][$item->id] = $item;
+        }
+        // 索引排序
+        ksort($branch_list_new);
+        return view('admin.article.edit',[
+            'article_info'=>$article_info,
+            'article_id'=>$article_id,
+            'level_list'=>$branch_list_new,
+            'current_list'=>$current_list
+        ]);
 
     }
     /*

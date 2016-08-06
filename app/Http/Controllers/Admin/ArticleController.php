@@ -21,7 +21,7 @@ class ArticleController extends Controller
         $article_content = $request->input('article_content');
         $article_sign = trim($request->input('article_sign'));
         $article_id = trim($request->input('article_id'));
-        $category_id = $request->inut('category_id');
+        $category_id = $request->input('category_id');
 
         if(count(explode(' ',$article_sign)) > 5) {
             return ['res'=>101,'msg'=>'标签数量不能大于5个'];
@@ -30,7 +30,7 @@ class ArticleController extends Controller
             return ['res'=>101,'msg'=>'请选择栏目'];
         }
         // 获取栏目的节点信息，判断左右值是否是相差1
-        $category_info = Category::where('id',$category_id);
+        $category_info = Category::where('id',$category_id)->first();
         if($category_info->right_val-$category_info->left_val != 1) {
             return ['res'=>101,'msg'=>'您选择的栏目不是叶子节点'];
         }
