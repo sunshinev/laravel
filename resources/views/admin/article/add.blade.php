@@ -20,6 +20,7 @@
                     @endforeach
                 </ul>
             </div>
+            <input type ='hidden' id="category_id_can_submit">
         </div>
     </div>
     <br>
@@ -53,10 +54,15 @@
         var _getSign = function() {
             return document.getElementById('article_sign').value;
         }
+
+        var _getCategoryId = function() {
+            return document.getElementById('category_id_can_submit').value;
+        }
         var _send = function(type) {
             var title = _getTitle();
             var content = _getContent();
             var sign = _getSign();
+            var category_id = _getCategoryId;
 
             if(!title) {
                 alert('请填写标题');
@@ -64,6 +70,11 @@
             }
             if(!content) {
                 alert('请填写内容');
+                return;
+            }
+
+            if(!category_id) {
+                alert("请选择最后的栏目分类");
                 return;
             }
 
@@ -81,7 +92,8 @@
                     article_title:title,
                     article_content:content,
                     article_sign:sign,
-                    article_id:article_id
+                    article_id:article_id,
+                    category_id:category_id
                     },
                 url:url,
                 headers:{
@@ -145,14 +157,18 @@
                         // 将所有的大于当前被点击元素level的栏目remove掉
                         $("[id^=level_]:gt("+c_level+")").remove();
                         $("#level_"+ p_level).after(html);
-                        // $("#level_action_title_"+ p_level).html(category_title);
+                        // 内容生成
                         document.getElementById("action_"+ p_level).innerHTML = category_title;
+                        // 如果不是list不是空俺么category_id的节点有子节点，不能进行提交
+                        $("#category_id_can_submit").val('');
                     }else if(d.res == 101){
                         var c_level = d.level -2;
                         var p_level = d.level -1;
                         $("[id^=level_]:gt("+ c_level+")").remove();
-                        // $("#level_action_title_"+ p_level).html(category_title);
+
                         document.getElementById("action_"+ p_level).innerHTML = category_title;
+                        // 如果为空，那么将设置category_id为可以提交的叶子节点
+                        $("#category_id_can_submit").val(category_id);
                     }else {
                         //
                     }
