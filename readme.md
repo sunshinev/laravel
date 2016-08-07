@@ -1,27 +1,31 @@
-## Laravel PHP Framework
+# 基于laravel的私人博客系统
+> 目前在开发中，做一个简单的博客系统，后期不断进行完善
 
-[![Build Status](https://travis-ci.org/laravel/framework.svg)](https://travis-ci.org/laravel/framework)
-[![Total Downloads](https://poser.pugx.org/laravel/framework/d/total.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Stable Version](https://poser.pugx.org/laravel/framework/v/stable.svg)](https://packagist.org/packages/laravel/framework)
-[![Latest Unstable Version](https://poser.pugx.org/laravel/framework/v/unstable.svg)](https://packagist.org/packages/laravel/framework)
-[![License](https://poser.pugx.org/laravel/framework/license.svg)](https://packagist.org/packages/laravel/framework)
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable, creative experience to be truly fulfilling. Laravel attempts to take the pain out of development by easing common tasks used in the majority of web projects, such as authentication, routing, sessions, queueing, and caching.
+## 特色
+* 后台markdown语法录入
+* 前台解析markdown语法生成html页面
+* 使用bootstrap作为前端框架
+* 支持后台无限分类栏目管理
+* 支持文章添加
 
-Laravel is accessible, yet powerful, providing powerful tools needed for large, robust applications. A superb inversion of control container, expressive migration system, and tightly integrated unit testing support give you the tools you need to build any application with which you are tasked.
 
-## Official Documentation
+## 功能
+### 栏目管理
+* 采用左右值无限分类算法，支持每个栏目按钮的单独路由页面。
+* 支持栏目名称修改
+* 支持栏目添加子栏目
 
-Documentation for the framework can be found on the [Laravel website](http://laravel.com/docs).
+### 添加文章
+* 支持添加标题、内容、标签
+* 支持草稿和发布功能
+* 支持栏目选择功能（比较有意思）
 
-## Contributing
+### 文章管理
+针对添加的文章的列表方式的管理，包括
+* 上架下架操作
+* 编辑操作
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](http://laravel.com/docs/contributions).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell at taylor@laravel.com. All security vulnerabilities will be promptly addressed.
-
-### License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](http://opensource.org/licenses/MIT)
+### 文章编辑
+* 文章的原内容加载
+* 文章的栏目分支树整体加载
