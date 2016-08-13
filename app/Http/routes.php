@@ -47,6 +47,7 @@ Route::group(['middleware'=>'auth'],function() {
 
     Route::post('admin/category/add','Admin\CategoryController@insertNode');
     Route::post('admin/category/edit','Admin\CategoryController@updateNode');
+    Route::post('admin/category/remove','Admin\CategoryController@removeNode');
     // 分类管理 end
 
 });

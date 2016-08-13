@@ -19,7 +19,7 @@
                         @if($current_node->id == $item->id)
                         <li class="list-group-item">
                             <button class="btn btn-sm btn-info" onclick="$('#addModal').modal('show')"><span class="glyphicon glyphicon-plus"></span></button>
-                            <button class="btn btn-sm btn-danger" ><span class="glyphicon glyphicon-remove"></span></button>
+                            <button class="btn btn-sm btn-danger" onclick="Category.remove('{{ $item->id }}')"><span class="glyphicon glyphicon-remove"></span></button>
                             <button class="btn btn-sm btn-success" onclick="$('#editTitleModal').modal('show')"><span class="glyphicon glyphicon-pushpin"></span></button>
                         </li>
                         @endif
@@ -48,8 +48,8 @@
                         @if($current_node->id == $item->id)
                             <li class="list-group-item">
                                 <button class="btn btn-sm btn-info" onclick="$('#addModal').modal('show')"><span class="glyphicon glyphicon-plus"></span></button>
-                                <button class="btn btn-sm btn-danger"><span class="glyphicon glyphicon-remove"></span></button>
-                                <button class="btn btn-sm btn-success"><span class="glyphicon glyphicon-pushpin"></span></button>
+                                <button class="btn btn-sm btn-danger" onclick="Category.remove('{{ $item->id }}')"><span class="glyphicon glyphicon-remove"></span></button>
+                                <button class="btn btn-sm btn-success" onclick="$('#editTitleModal').modal('show')"><span class="glyphicon glyphicon-pushpin"></span></button>
                             </li>
                         @endif
                         @else
@@ -181,10 +181,40 @@
                 _edit(category_id,title);
             }
 
+            // 删除栏目
+            var _remove = function(category_id) {
+                $.ajax({
+                    type:'post',
+                    data:{
+                        'category_id':category_id
+                    },
+                    url:"{{ asset('admin/category/remove') }}",
+                    headers:{
+                        'X-CSRF-TOKEN':"{{ csrf_token() }}"
+                    },
+                    success:function(d,s) {
+                        if(d.res == 100) {
+                            location.href='{{ asset('admin/category/manage/0_') }}'+ d.pid;
+                        }else {
+                            alert(d.msg);
+                        }
+                    }
+                })
+            }
+
+            var remove = function(category_id) {
+                if(!confirm('确认删除该栏目？')) {
+                    return;
+                }
+
+                _remove(category_id);
+            }
+
             return {
                 addParent:addParent,
                 addChild:addChild,
-                editTitle:editTitle
+                editTitle:editTitle,
+                remove:remove
             }
 
         }())
