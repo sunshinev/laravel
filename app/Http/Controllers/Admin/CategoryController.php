@@ -69,13 +69,18 @@ class CategoryController extends Controller
         $p_info = Category::where('id',$pid)->first();
 
         // 更新所有大于等于父级节点的right_val的节点的right_val = right_val+2
-        Category::where('right_val','>=',$p_info->right_val)
+        Category::where('right_val','>',$p_info->right_val)
             ->increment('right_val',2);
+        // 更新左值
+        Category::where('left_val','>',$p_info->right_val)
+            ->increment('left_val',2);
 
+        // 更新自己的节点值
+        Category::where('id',$pid)->increment('right_val',2);
         // 插入新的子节点
         $child_node = new Category();
-        $child_node->right_val = $p_info->right_val + 1;
         $child_node->left_val = $p_info->right_val;
+        $child_node->right_val = $p_info->right_val+1;
         $child_node->level = $p_info->level + 1;
         $child_node->title = $title;
         return $child_node->save();
