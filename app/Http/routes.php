@@ -10,12 +10,17 @@
 | and give it the controller to call when that URI is requested.
 |
 */
+
+Route::group(['middleware'=>'navi'],function() {
+    Route::get('/','Index\IndexController@index');
+    Route::get('/article/{article_id}','Index\IndexController@article');
+    Route::get('/article/list/{category_id}','Index\IndexController@searchArticle');
+});
 Route::get('welcome', function () {
     return view('welcome');
 });
 
-Route::get('/','Index\IndexController@index')->middleware(['navi']);
-Route::get('/article/{article_id}','Index\IndexController@article')->middleware(['navi']);
+
 // 认证路由...
 Route::get('auth/login', 'Auth\AuthController@getLogin');
 Route::post('auth/login', 'Auth\AuthController@postLogin');

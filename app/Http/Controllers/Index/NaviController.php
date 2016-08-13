@@ -27,7 +27,7 @@ class NaviController extends Controller
                 $html .= '<span class="caret"></span>';
                 $html .= '</a>';
             }else {
-                $html .= '<a tabindex="0">';
+                $html .= '<a tabindex="0" href="'.action('Index\IndexController@searchArticle',$item->id).'">';
                 $html .= $item->title;
                 $html .= '</a>';
             }
@@ -49,10 +49,12 @@ class NaviController extends Controller
             // 如果没有子树，那么不加载箭头样式
             if($item['list']) {
                 $html .= '<li class="dropdown-submenu">';
+                $html .= '<a tabindex="0">'.$item->title.'</a>';
             }else {
                 $html .= '<li>';
+                $html .= '<a tabindex="0" href="'.action('Index\IndexController@searchArticle',$item->id).'">'.$item->title.'</a>';
             }
-            $html .= '<a tabindex="0">'.$item->title.'</a>';
+
             $html .= self::createSubNavi($item);
             $html .= '</li>';
         }

@@ -181,6 +181,7 @@ class CategoryController extends Controller
         // 直接删除该节点
         Category::where('id',$category_id)->delete();
 
+        // 添加pid方便删除节点之后，直接跳转到父级目录的页面，避免报错
         return response()->json(['res'=>'100','msg'=>'success','pid'=>$parent_node->id]);
 
 

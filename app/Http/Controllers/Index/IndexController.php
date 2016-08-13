@@ -33,6 +33,9 @@ class IndexController extends Controller
     public function article(Request $request) {
         $article_id = $request->article_id;
         $article_info = Article::where('id',$article_id)->first();
+        if(!count($article_info)) {
+            abort(404);
+        }
         $article_info->article_sign = explode(' ',$article_info->article_sign);
         $hyper_parse = new HyperDownController();
         $article_info->article_content = $hyper_parse->makeHtml($article_info->article_content);
@@ -49,6 +52,36 @@ class IndexController extends Controller
             'article_info'=>$article_info,
             'parent_list'=>$parent_list
 
+        ]);
+    }
+
+    /**
+     * 栏目文章列表搜索
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function searchArticle(Request $request) {
+        $category_id = $request->category_id;
+        // 面包屑生成
+        $node_info = Category::where('id',$category_id)->first();
+
+        $parent_list = Category::where('right_val','>=',$node_info->right_val)
+            ->where('left_val','<=',$node_info->left_val)
+            ->orderBy('left_val','asc')
+            ->get();
+        // 加载栏目关联的文章列表
+        $list = Article::where('category_id',$category_id)
+            ->orderBy('updated_at','desc')
+            ->get();
+
+        // 重载标签
+        foreach($list as &$item) {
+            $item->article_sign = explode(' ',$item->article_sign);
+        }
+
+        return view('index.list',[
+            'article_list'=>$list,
+            'parent_list'=>$parent_list
         ]);
     }
 }
