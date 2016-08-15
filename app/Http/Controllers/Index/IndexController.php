@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Article;
 use App\Http\Controllers\HyperDownController;
 use App\Category;
+use Illuminate\Support\Facades\DB;
 
 class IndexController extends Controller
 {
@@ -82,6 +83,29 @@ class IndexController extends Controller
         return view('index.list',[
             'article_list'=>$list,
             'parent_list'=>$parent_list
+        ]);
+    }
+
+    /**
+     * 搜索结果列表
+     * @param Request $request
+     * @return \Illuminate\Contracts\View\Factory|\Illuminate\View\View
+     */
+    public function search(Request $request) {
+        $keywords = $request->keywords;
+        $list = null;
+        if(!$keywords) {
+            // list empty
+        }else {
+            $list = Article::where('article_title','like',"%$keywords%")
+                ->orWhere('article_content','like',"%$keywords%")
+                ->get();
+        }
+
+        return view('index.search',[
+            'article_list'=>$list,
+            'keywords'=>$keywords,
+            'count'=>count($list)
         ]);
     }
 }

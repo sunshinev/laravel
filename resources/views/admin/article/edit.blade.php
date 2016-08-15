@@ -34,7 +34,7 @@
             <p class="help-block">请填写markdown语法的文章内容，前台将自动按照markdown语法进行解析</p>
             <br>
             <label>标签</label>
-            <input id="article_sign" class="form-control" placeholder="例：php redis">
+            <input id="article_sign" class="form-control" placeholder="例：php redis" value="{{ $article_info->article_sign }}">
             <p class="help-block">标签请使用空格隔开，最多支持5个</p>
             <br>
             <button class="btn btn-sm btn-primary" onclick="Editor.draft()">保存草稿</button>

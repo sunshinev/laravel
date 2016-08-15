@@ -19,6 +19,11 @@ class NaviController extends Controller
      */
     public static function createNavi($list) {
         $html = '';
+        $html .= '<li class="dropdown">';
+        $html .= '<a href="'.action('Index\IndexController@index').'">';
+        $html .= '首页';
+        $html .= '</a>';
+        $html .= '</li>';
         foreach($list as $item) {
             $html .= '<li class="dropdown">';
             if($item['list']) {

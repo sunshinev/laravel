@@ -10,14 +10,15 @@
 | and give it the controller to call when that URI is requested.
 |
 */
+Route::get('welcome', function () {
+    return view('welcome');
+});
 
 Route::group(['middleware'=>'navi'],function() {
     Route::get('/','Index\IndexController@index');
     Route::get('/article/{article_id}','Index\IndexController@article');
     Route::get('/article/list/{category_id}','Index\IndexController@searchArticle');
-});
-Route::get('welcome', function () {
-    return view('welcome');
+    Route::get('/article/search/{keywords}','index\IndexController@search');
 });
 
 

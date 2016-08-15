@@ -12,6 +12,7 @@
     </div>
     <div class="row">
         <div class="col-md-10 col-md-offset-1" >
+            @if (count($article_list))
             @foreach ($article_list as $key=>$item)
                 <div class="row">
                     <div class="col-md-12">
@@ -25,6 +26,13 @@
                     </div>
                 </div>
             @endforeach
+            @else
+                <div class="jumbotron">
+                    <h1>^^</h1>
+                    <p>没有更多记录，小编后期会补充的啦~</p>
+                    <p><a class="btn btn-success btn-sm" href="#" role="button" onclick="history.back()">返回上一页</a></p>
+                </div>
+            @endif
         </div>
     </div>
 @stop

@@ -16,20 +16,20 @@
   <ul class="nav navbar-nav">
     <?php echo $navi; ?>
   </ul>
-  <form class="navbar-form navbar-left" role="search">
+  <form class="navbar-form navbar-right" role="search" action="" method="get" id="navi_search_form">
     <div class="form-group">
       <input type="text" class="form-control" placeholder="Search">
     </div>
-    <button type="submit" class="btn btn-default">Submit</button>
+    <button type="submit" class="btn btn-default" onclick="$('#navi_search_form').attr('action','{{ asset('article/search/') }}/'+$('#navi_search_form input').val())">submit</button>
   </form>
-  <ul class="nav navbar-nav navbar-right">
-    @if (Auth::user())
-      <li><a href="{{ url('auth/logout') }}">退出</a></li>
-    @else
-      <li><a href="{{ url('auth/login') }}">登陆</a></li>
-      <li><a href="{{ url('auth/register') }}">注册</a></li>
-    @endif
-  </ul>
+  {{--<ul class="nav navbar-nav navbar-right">--}}
+    {{--@if (Auth::user())--}}
+      {{--<li><a href="{{ url('auth/logout') }}">退出</a></li>--}}
+    {{--@else--}}
+      {{--<li><a href="{{ url('auth/login') }}">登陆</a></li>--}}
+      {{--<li><a href="{{ url('auth/register') }}">注册</a></li>--}}
+    {{--@endif--}}
+  {{--</ul>--}}
 </div><!-- /.navbar-collapse -->
 <script>
   $('[data-submenu]').submenupicker();
