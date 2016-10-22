@@ -9,7 +9,6 @@ use App\Http\Controllers\Controller;
 use App\Article;
 use App\Http\Controllers\HyperDownController;
 use App\Category;
-use Illuminate\Support\Facades\DB;
 
 class IndexController extends Controller
 {

@@ -25,9 +25,9 @@
     </div>
     <br>
     <div class="row">
-        <div class="col-md-10">
+        <div class="col-md-5">
             <label>文章内容</label>
-            <textarea id="article_content" class="form-control" placeholder="## 内容" style="min-height: 200px;"></textarea>
+            <textarea id="article_content" class="form-control" placeholder="## 内容" style="min-height: 200px;" rows="30" oninput="Editor.mark()"></textarea>
             <p class="help-block">请填写markdown语法的文章内容，前台将自动按照markdown语法进行解析</p>
             <br>
             <label>标签</label>
@@ -37,8 +37,22 @@
             <button class="btn btn-sm btn-primary" onclick="Editor.draft()">保存草稿</button>
             <button class="btn btn-sm btn-success" onclick="Editor.publish()">保存发布</button>
         </div>
+        <div class="col-md-5">
+            <label>效果预览</label>
+            <div id="markdown_layer"></div>
+        </div>
     </div>
+
     <script>
+
+    require.config({
+        baseUrl:'{{ asset('js/markdown-js-master/src/') }}',
+        paths: {
+            "markdown": "markdown"
+        }
+
+    });
+
     var Editor = (function() {
 
         var article_id = '';
@@ -54,7 +68,6 @@
         var _getSign = function() {
             return document.getElementById('article_sign').value;
         }
-
         var _getCategoryId = function() {
             return document.getElementById('category_id_can_submit').value;
         }
@@ -176,10 +189,17 @@
             })
         }
 
+        var mark = function() {
+            require(['markdown'],function(markdown) {
+                $("#markdown_layer").html(markdown.toHTML(_getContent()));
+            });
+        }
+
         return {
             draft:draft,
             publish:publish,
-            categoryTouch:categoryTouch
+            categoryTouch:categoryTouch,
+            mark:mark
         }
     }())
     </script>

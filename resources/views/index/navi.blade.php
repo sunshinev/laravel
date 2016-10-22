@@ -18,9 +18,9 @@
   </ul>
   <form class="navbar-form navbar-right" role="search" action="" method="get" id="navi_search_form">
     <div class="form-group">
-      <input type="text" class="form-control" placeholder="Search">
+      <input type="text" class="form-control" placeholder="标题/内容关键字">
     </div>
-    <button type="submit" class="btn btn-default" onclick="$('#navi_search_form').attr('action','{{ asset('article/search/') }}/'+$('#navi_search_form input').val())">submit</button>
+    <button type="submit" class="btn btn-default" onclick="$('#navi_search_form').attr('action','{{ asset('article/search/') }}/'+$('#navi_search_form input').val())">搜索</button>
   </form>
   {{--<ul class="nav navbar-nav navbar-right">--}}
     {{--@if (Auth::user())--}}
