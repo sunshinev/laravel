@@ -14,7 +14,7 @@ class AddStatusToArticles extends Migration
     {
         Schema::table('articles', function (Blueprint $table) {
             //
-            $table->enum('status',['draft','publish'])->after('article_sign');
+            $table->enum('status',['draft','publish','remove'])->after('article_sign');
         });
     }
 

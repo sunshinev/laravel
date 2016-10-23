@@ -91,6 +91,11 @@
                 return;
             }
 
+            if(!sign) {
+                alert("请输入标签");
+                return;
+            }
+
             if(type == 'draft') {
                 var url = '{{ asset('admin/article/draft') }}';
             }else if(type == 'publish') {

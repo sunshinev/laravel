@@ -29,6 +29,9 @@ class ArticleController extends Controller
         if(!$category_id) {
             return ['res'=>101,'msg'=>'请选择栏目'];
         }
+        if(!$article_sign) {
+            return ['res'=>101,'msg'=>'请填写标签内容'];
+        }
         // 获取栏目的节点信息，判断左右值是否是相差1
         $category_info = Category::where('id',$category_id)->first();
         if($category_info->right_val-$category_info->left_val != 1) {
@@ -91,14 +94,16 @@ class ArticleController extends Controller
     public function setStatus(Request $request) {
         $article_id = $request->input('article_id');
         $status = $request->input('status');
+
         switch($status) {
             case 'publish':
             case 'draft':
+            case 'remove':
                 break;
             default:
                 return response()->json([
                     'res'=>101,
-                    'msg'=>'类型错误'
+                    'msg'=>'类型错误'.$status
                 ]);
         }
         // 写入状态

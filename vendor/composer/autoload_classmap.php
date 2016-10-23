@@ -6,9 +6,11 @@ $vendorDir = dirname(dirname(__FILE__));
 $baseDir = dirname($vendorDir);
 
 return array(
+    'AddCategoryIdToArticleTableAfterUid' => $baseDir . '/database/migrations/2016_08_06_173852_add_category_id_to_article_table_after_uid.php',
     'AddStatusToArticles' => $baseDir . '/database/migrations/2016_07_27_090734_add_status_to_articles.php',
     'AddUserIdToTasks' => $baseDir . '/database/migrations/2016_07_26_083648_add_user_id_to_tasks.php',
     'CreateArticlesTable' => $baseDir . '/database/migrations/2016_07_27_084148_create_articles_table.php',
+    'CreateCategoriesTable' => $baseDir . '/database/migrations/2016_08_01_125859_create_categories_table.php',
     'CreatePasswordResetsTable' => $baseDir . '/database/migrations/2014_10_12_100000_create_password_resets_table.php',
     'CreateTasksTable' => $baseDir . '/database/migrations/2016_07_26_082125_create_tasks_table.php',
     'CreateUsersTable' => $baseDir . '/database/migrations/2014_10_12_000000_create_users_table.php',
@@ -519,4 +521,6 @@ return array(
     'SessionHandlerInterface' => $vendorDir . '/symfony/http-foundation/Resources/stubs/SessionHandlerInterface.php',
     'TestCase' => $baseDir . '/tests/TestCase.php',
     'Text_Template' => $vendorDir . '/phpunit/php-text-template/src/Template.php',
+    'UpdateArticlesStatus' => $baseDir . '/database/migrations/2016_10_23_182825_update_articles_status.php',
+    'UpdateArticlesTable' => $baseDir . '/database/migrations/2016_10_23_172336_update_articles_table.php',
 );

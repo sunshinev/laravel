@@ -69,6 +69,8 @@ class ComposerStaticInit97b17a1a5f1ddaa3bd59bde2233bd0ee
         'D' => 
         array (
             'Doctrine\\Instantiator\\' => 22,
+            'Doctrine\\Common\\Cache\\' => 22,
+            'Doctrine\\Common\\' => 16,
         ),
         'C' => 
         array (
@@ -186,6 +188,14 @@ class ComposerStaticInit97b17a1a5f1ddaa3bd59bde2233bd0ee
         array (
             0 => __DIR__ . '/..' . '/doctrine/instantiator/src/Doctrine/Instantiator',
         ),
+        'Doctrine\\Common\\Cache\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/doctrine/cache/lib/Doctrine/Common/Cache',
+        ),
+        'Doctrine\\Common\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/doctrine/common/lib/Doctrine/Common',
+        ),
         'ClassPreloader\\' => 
         array (
             0 => __DIR__ . '/..' . '/classpreloader/classpreloader/src',
@@ -247,9 +257,25 @@ class ComposerStaticInit97b17a1a5f1ddaa3bd59bde2233bd0ee
             array (
                 0 => __DIR__ . '/..' . '/vlucas/phpdotenv/src',
             ),
+            'Doctrine\\DBAL\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/doctrine/dbal/lib',
+            ),
+            'Doctrine\\Common\\Lexer\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/doctrine/lexer/lib',
+            ),
             'Doctrine\\Common\\Inflector\\' => 
             array (
                 0 => __DIR__ . '/..' . '/doctrine/inflector/lib',
+            ),
+            'Doctrine\\Common\\Collections\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/doctrine/collections/lib',
+            ),
+            'Doctrine\\Common\\Annotations\\' => 
+            array (
+                0 => __DIR__ . '/..' . '/doctrine/annotations/lib',
             ),
             'Diff' => 
             array (
@@ -266,9 +292,11 @@ class ComposerStaticInit97b17a1a5f1ddaa3bd59bde2233bd0ee
     );
 
     public static $classMap = array (
+        'AddCategoryIdToArticleTableAfterUid' => __DIR__ . '/../..' . '/database/migrations/2016_08_06_173852_add_category_id_to_article_table_after_uid.php',
         'AddStatusToArticles' => __DIR__ . '/../..' . '/database/migrations/2016_07_27_090734_add_status_to_articles.php',
         'AddUserIdToTasks' => __DIR__ . '/../..' . '/database/migrations/2016_07_26_083648_add_user_id_to_tasks.php',
         'CreateArticlesTable' => __DIR__ . '/../..' . '/database/migrations/2016_07_27_084148_create_articles_table.php',
+        'CreateCategoriesTable' => __DIR__ . '/../..' . '/database/migrations/2016_08_01_125859_create_categories_table.php',
         'CreatePasswordResetsTable' => __DIR__ . '/../..' . '/database/migrations/2014_10_12_100000_create_password_resets_table.php',
         'CreateTasksTable' => __DIR__ . '/../..' . '/database/migrations/2016_07_26_082125_create_tasks_table.php',
         'CreateUsersTable' => __DIR__ . '/../..' . '/database/migrations/2014_10_12_000000_create_users_table.php',
@@ -779,6 +807,8 @@ class ComposerStaticInit97b17a1a5f1ddaa3bd59bde2233bd0ee
         'SessionHandlerInterface' => __DIR__ . '/..' . '/symfony/http-foundation/Resources/stubs/SessionHandlerInterface.php',
         'TestCase' => __DIR__ . '/../..' . '/tests/TestCase.php',
         'Text_Template' => __DIR__ . '/..' . '/phpunit/php-text-template/src/Template.php',
+        'UpdateArticlesStatus' => __DIR__ . '/../..' . '/database/migrations/2016_10_23_182825_update_articles_status.php',
+        'UpdateArticlesTable' => __DIR__ . '/../..' . '/database/migrations/2016_10_23_172336_update_articles_table.php',
     );
 
     public static function getInitializer(ClassLoader $loader)

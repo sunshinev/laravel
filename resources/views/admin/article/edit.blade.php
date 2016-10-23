@@ -39,6 +39,7 @@
             <br>
             <button class="btn btn-sm btn-primary" onclick="Editor.draft()">保存草稿</button>
             <button class="btn btn-sm btn-success" onclick="Editor.publish()">保存发布</button>
+            <button class="btn btn-sm btn-success" onclick="Editor.remove()">删除</button>
         </div>
         <div class="col-md-5">
             <label>预览</label>
@@ -128,11 +129,37 @@
                 })
             }
 
+            var _setStatus = function(status) {
+                if(!article_id) {
+                    alert('article_id is error');
+                    return;
+                }
+                $.ajax({
+                    type:'post',
+                    url:'{{ asset('admin/article/set_status') }}',
+                    data:{article_id:article_id,status:status},
+                    headers:{
+                        'X-CSRF-TOKEN':'{{ csrf_token() }}'
+                    },
+                    success:function(d,s) {
+                        if(d.res !=100) {
+                            alert(d.msg);
+                        }else {
+                            alert("执行"+status+"操作成功");
+                            window.location.href='';
+                        }
+                    }
+                })
+            }
+
             var draft = function() {
                 _send('draft');
             }
             var publish  = function() {
                 _send('publish');
+            }
+            var remove = function() {
+                _setStatus('remove');
             }
 
             // 栏目工具（如果后期修改栏目怎么办呢？对于edit模板，要提前加载路径上所有节点）
@@ -204,6 +231,7 @@
             return {
                 draft:draft,
                 publish:publish,
+                remove:remove,
                 categoryTouch:categoryTouch,
                 mark:mark
             }

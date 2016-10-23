@@ -99,7 +99,8 @@ class AdminController extends Controller
      */
     public function articleManage() {
 
-        $list = Article::orderBy('updated_at','desc')->get();
+        $list = Article::where('status','<>','remove')
+        ->orderBy('updated_at','desc')->get();
 
         return view('admin.article.manage',['article_list'=>$list]);
     }

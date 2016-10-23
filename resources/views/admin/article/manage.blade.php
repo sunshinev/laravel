@@ -18,10 +18,11 @@
                     <td>
                         @if( $item->status=='publish' )
                             <button class="btn btn-sm btn-info" onclick="Editor.draft('{{ $item->id }}')">下架</button>
-                        @elseif( $item->status=='draft' )
+                        @else
                             <button class="btn btn-sm btn-primary" onclick="Editor.publish('{{ $item->id }}')">发布</button>
                         @endif
                         <button class="btn btn-sm btn-success" onclick="window.location.href='{{ URL::to('admin/article/edit/'.$item->id)}}'">编辑</button>
+                            <button class="btn btn-sm btn-danger" onclick="Editor.remove('{{$item->id}}')">删除</button>
                     </td>
                 </tr>
             @endforeach
@@ -35,6 +36,9 @@
 
             var publish = function(article_id) {
                 _setStatus(article_id,'publish');
+            }
+            var remove = function(article_id) {
+                _setStatus(article_id,'remove');
             }
 
             var _setStatus = function(article_id,status) {
@@ -61,7 +65,8 @@
 
             return {
                 draft:draft,
-                publish:publish
+                publish:publish,
+                remove:remove
             }
         }())
     </script>
