@@ -44,6 +44,8 @@ Route::group(['middleware'=>'auth'],function() {
     Route::post('admin/category/getNextLayerNodesByAjax','Admin\CategoryController@getNextLayerNodesByAjax');
 
     Route::get('admin/article/edit/{article_id}','Admin\AdminController@articleEdit');
+
+    Route::post('admin/article/set_status','Admin\ArticleController@setStatus');
     // 文章管理 end
 
     // 分类管理 begin

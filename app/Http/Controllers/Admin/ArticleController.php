@@ -84,4 +84,29 @@ class ArticleController extends Controller
             return response()->json($r);
         }
     }
+
+    /**
+     * 设置文章的状态
+     */
+    public function setStatus(Request $request) {
+        $article_id = $request->input('article_id');
+        $status = $request->input('status');
+        switch($status) {
+            case 'publish':
+            case 'draft':
+                break;
+            default:
+                return response()->json([
+                    'res'=>101,
+                    'msg'=>'类型错误'
+                ]);
+        }
+        // 写入状态
+        $r = Article::where('id',$article_id)
+            ->update(['status'=>$status]);
+        return response()->json([
+            'res'=>100,
+            'msg'=>'success'
+        ]);
+    }
 }
