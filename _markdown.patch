@@ -1,0 +1,994 @@
+Index: app/Http/routes.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/Http/routes.php	(revision eb1b6fe319f4ca8eeba5757df760f4dcd2770d1d)
++++ app/Http/routes.php	(revision )
+@@ -44,6 +44,8 @@
+     Route::post('admin/category/getNextLayerNodesByAjax','Admin\CategoryController@getNextLayerNodesByAjax');
+ 
+     Route::get('admin/article/edit/{article_id}','Admin\AdminController@articleEdit');
++
++    Route::post('admin/article/set_status','Admin\ArticleController@setStatus');
+     // 文章管理 end
+ 
+     // 分类管理 begin
+Index: app/Http/Controllers/Admin/ArticleController.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- app/Http/Controllers/Admin/ArticleController.php	(revision eb1b6fe319f4ca8eeba5757df760f4dcd2770d1d)
++++ app/Http/Controllers/Admin/ArticleController.php	(revision )
+@@ -84,4 +84,29 @@
+             return response()->json($r);
+         }
+     }
++
++    /**
++     * 设置文章的状态
++     */
++    public function setStatus(Request $request) {
++        $article_id = $request->input('article_id');
++        $status = $request->input('status');
++        switch($status) {
++            case 'publish':
++            case 'draft':
++                break;
++            default:
++                return response()->json([
++                    'res'=>101,
++                    'msg'=>'类型错误'
++                ]);
++        }
++        // 写入状态
++        $r = Article::where('id',$article_id)
++            ->update(['status'=>$status]);
++        return response()->json([
++            'res'=>100,
++            'msg'=>'success'
++        ]);
++    }
+ }
+Index: resources/views/admin/article/manage.blade.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- resources/views/admin/article/manage.blade.php	(revision eb1b6fe319f4ca8eeba5757df760f4dcd2770d1d)
++++ resources/views/admin/article/manage.blade.php	(revision )
+@@ -17,9 +17,9 @@
+                     <td>{{$item->created_at}}</td>
+                     <td>
+                         @if( $item->status=='publish' )
+-                            <button class="btn btn-sm btn-info">下架</button>
++                            <button class="btn btn-sm btn-info" onclick="Editor.draft('{{ $item->id }}')">下架</button>
+                         @elseif( $item->status=='draft' )
+-                            <button class="btn btn-sm btn-primary">发布</button>
++                            <button class="btn btn-sm btn-primary" onclick="Editor.publish('{{ $item->id }}')">发布</button>
+                         @endif
+                         <button class="btn btn-sm btn-success" onclick="window.location.href='{{ URL::to('admin/article/edit/'.$item->id)}}'">编辑</button>
+                     </td>
+@@ -27,4 +27,42 @@
+             @endforeach
+         </table>
+     </div>
++    <script>
++        var Editor = (function() {
++            var draft = function(article_id) {
++                _setStatus(article_id,'draft');
++            }
++
++            var publish = function(article_id) {
++                _setStatus(article_id,'publish');
++            }
++
++            var _setStatus = function(article_id,status) {
++                if(!article_id) {
++                    alert('article_id is error');
++                    return;
++                }
++                $.ajax({
++                    type:'post',
++                    url:'{{ asset('admin/article/set_status') }}',
++                    data:{article_id:article_id,status:status},
++                    headers:{
++                        'X-CSRF-TOKEN':'{{ csrf_token() }}'
++                    },
++                    success:function(d,s) {
++                        if(d.res !=100) {
++                            alert(d.msg);
++                        }else {
++                            window.location.href='';
++                        }
++                    }
++                })
++            }
++
++            return {
++                draft:draft,
++                publish:publish
++            }
++        }())
++    </script>
+ @stop
+\ No newline at end of file
+Index: resources/views/admin/article/edit.blade.php
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- resources/views/admin/article/edit.blade.php	(revision eb1b6fe319f4ca8eeba5757df760f4dcd2770d1d)
++++ resources/views/admin/article/edit.blade.php	(revision )
+@@ -28,9 +28,9 @@
+     </div>
+     <br>
+     <div class="row">
+-        <div class="col-md-10">
++        <div class="col-md-5">
+             <label>文章内容</label>
+-            <textarea id="article_content" class="form-control" placeholder="## 内容" style="min-height: 200px;">{{ $article_info->article_content }}</textarea>
++            <textarea id="article_content" class="form-control" placeholder="## 内容" style="min-height: 200px;" oninput="Editor.mark()">{{ $article_info->article_content }}</textarea>
+             <p class="help-block">请填写markdown语法的文章内容，前台将自动按照markdown语法进行解析</p>
+             <br>
+             <label>标签</label>
+@@ -40,8 +40,20 @@
+             <button class="btn btn-sm btn-primary" onclick="Editor.draft()">保存草稿</button>
+             <button class="btn btn-sm btn-success" onclick="Editor.publish()">保存发布</button>
+         </div>
++        <div class="col-md-5">
++            <label>预览</label>
++            <div id="markdown_layer">
++
+-    </div>
++            </div>
++        </div>
++    </div>
+     <script>
++        require.config({
++            baseUrl:'{{asset('js/markdown-js-master/src')}}',
++            paths:{
++                markdown:'markdown'
++            }
++        })
+         var Editor = (function() {
+ 
+             var article_id = '{{ $article_info->id }}';
+@@ -179,10 +191,21 @@
+                 })
+             }
+ 
++            var mark = function() {
++                require(['markdown'],function(markdown){
++                    $('#markdown_layer').html(markdown.toHTML(_getContent()));
++                });
++            }
++
++            var init = (function() {
++                mark();
++            }())
++
+             return {
+                 draft:draft,
+                 publish:publish,
+-                categoryTouch:categoryTouch
++                categoryTouch:categoryTouch,
++                mark:mark
+             }
+         }())
+     </script>
+\ No newline at end of file
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- .idea/workspace.xml	(revision eb1b6fe319f4ca8eeba5757df760f4dcd2770d1d)
++++ .idea/workspace.xml	(revision )
+@@ -5,14 +5,11 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="f2141d82-96d1-4acc-852a-d0e9d12c0e5c" name="Default" comment="">
+-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/public/js/require.js" />
+-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/public/js/vue.js" />
+       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/Http/Controllers/Index/IndexController.php" afterPath="$PROJECT_DIR$/app/Http/Controllers/Index/IndexController.php" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/Http/Controllers/Admin/ArticleController.php" afterPath="$PROJECT_DIR$/app/Http/Controllers/Admin/ArticleController.php" />
+       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/Http/routes.php" afterPath="$PROJECT_DIR$/app/Http/routes.php" />
+-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/admin/article/add.blade.php" afterPath="$PROJECT_DIR$/resources/views/admin/article/add.blade.php" />
+-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/common/bootstrap_v3.blade.php" afterPath="$PROJECT_DIR$/resources/views/common/bootstrap_v3.blade.php" />
+-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/index/navi.blade.php" afterPath="$PROJECT_DIR$/resources/views/index/navi.blade.php" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/admin/article/edit.blade.php" afterPath="$PROJECT_DIR$/resources/views/admin/article/edit.blade.php" />
++      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/resources/views/admin/article/manage.blade.php" afterPath="$PROJECT_DIR$/resources/views/admin/article/manage.blade.php" />
+     </list>
+     <ignored path="laravel1.iws" />
+     <ignored path=".idea/workspace.xml" />
+@@ -33,7 +30,7 @@
+   </component>
+   <component name="FileEditorManager">
+     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+-      <file leaf-file-name="main.blade.php" pinned="false" current-in-tab="false">
++      <file leaf-file-name="main.blade.php" pinned="false" current-in-tab="true">
+         <entry file="file://$PROJECT_DIR$/resources/views/common/main.blade.php">
+           <provider selected="true" editor-type-id="text-editor">
+             <state relative-caret-position="75">
+@@ -43,11 +40,11 @@
+           </provider>
+         </entry>
+       </file>
+-      <file leaf-file-name="add.blade.php" pinned="false" current-in-tab="true">
++      <file leaf-file-name="add.blade.php" pinned="false" current-in-tab="false">
+         <entry file="file://$PROJECT_DIR$/resources/views/admin/article/add.blade.php">
+           <provider selected="true" editor-type-id="text-editor">
+-            <state relative-caret-position="209">
+-              <caret line="43" column="10" selection-start-line="43" selection-start-column="10" selection-end-line="43" selection-end-column="10" />
++            <state relative-caret-position="-90">
++              <caret line="31" column="16" selection-start-line="31" selection-start-column="16" selection-end-line="31" selection-end-column="16" />
+               <folding>
+                 <marker date="1477144408000" expanded="true" signature="4602:4613" ph="..." />
+               </folding>
+@@ -55,22 +52,24 @@
+           </provider>
+         </entry>
+       </file>
+-      <file leaf-file-name="markdown.js" pinned="false" current-in-tab="false">
+-        <entry file="file://$PROJECT_DIR$/public/js/markdown-js-master/src/markdown.js">
++      <file leaf-file-name="manage.blade.php" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/resources/views/admin/article/manage.blade.php">
+           <provider selected="true" editor-type-id="text-editor">
+-            <state relative-caret-position="75">
+-              <caret line="5" column="18" selection-start-line="5" selection-start-column="18" selection-end-line="5" selection-end-column="18" />
++            <state relative-caret-position="554">
++              <caret line="53" column="41" selection-start-line="53" selection-start-column="41" selection-end-line="53" selection-end-column="41" />
+               <folding />
+             </state>
+           </provider>
+         </entry>
+       </file>
+-      <file leaf-file-name="core.js" pinned="false" current-in-tab="false">
+-        <entry file="file://$PROJECT_DIR$/public/js/markdown-js-master/src/core.js">
++      <file leaf-file-name="edit.blade.php" pinned="false" current-in-tab="false">
++        <entry file="file://$PROJECT_DIR$/resources/views/admin/article/edit.blade.php">
+           <provider selected="true" editor-type-id="text-editor">
+-            <state relative-caret-position="-329">
+-              <caret line="0" column="17" selection-start-line="0" selection-start-column="11" selection-end-line="0" selection-end-column="17" />
+-              <folding />
++            <state relative-caret-position="442">
++              <caret line="200" column="23" selection-start-line="200" selection-start-column="23" selection-end-line="200" selection-end-column="23" />
++              <folding>
++                <marker date="1477212834000" expanded="true" signature="5308:5319" ph="..." />
++              </folding>
+             </state>
+           </provider>
+         </entry>
+@@ -99,7 +98,6 @@
+         <option value="$PROJECT_DIR$/resources/views/admin/navi.blade.php" />
+         <option value="$PROJECT_DIR$/resources/views/index/body.blade.php" />
+         <option value="$PROJECT_DIR$/resources/views/admin/index.blade.php" />
+-        <option value="$PROJECT_DIR$/resources/views/admin/article/manage.blade.php" />
+         <option value="$PROJECT_DIR$/app/Http/Controllers/HyperDownController.php" />
+         <option value="$PROJECT_DIR$/app/Http/Controllers/Admin/ClassifyController.php" />
+         <option value="$PROJECT_DIR$/resources/views/admin/classify/manage.blade.php" />
+@@ -108,7 +106,6 @@
+         <option value="$PROJECT_DIR$/resources/views/admin/left.blade.php" />
+         <option value="$PROJECT_DIR$/app/Category.php" />
+         <option value="$PROJECT_DIR$/database/migrations/2016_08_06_173852_add_category_id_to_article_table_after_uid.php" />
+-        <option value="$PROJECT_DIR$/app/Http/Controllers/Admin/ArticleController.php" />
+         <option value="$PROJECT_DIR$/app/Http/Controllers/Admin/AdminController.php" />
+         <option value="$PROJECT_DIR$/resources/views/index/article.blade.php" />
+         <option value="$PROJECT_DIR$/app/Http/Kernel.php" />
+@@ -123,17 +120,20 @@
+         <option value="$PROJECT_DIR$/app/Http/Controllers/Index/ArticleController.php" />
+         <option value="$PROJECT_DIR$/.env" />
+         <option value="$PROJECT_DIR$/app/Http/Controllers/Index/NaviController.php" />
+-        <option value="$PROJECT_DIR$/resources/views/admin/article/edit.blade.php" />
+         <option value="$PROJECT_DIR$/resources/views/index/list.blade.php" />
+         <option value="$PROJECT_DIR$/resources/views/index/search.blade.php" />
+         <option value="$PROJECT_DIR$/resources/views/index/navi.blade.php" />
+         <option value="$PROJECT_DIR$/app/Http/Controllers/Index/IndexController.php" />
+-        <option value="$PROJECT_DIR$/app/Http/routes.php" />
+         <option value="$PROJECT_DIR$/resources/views/admin/body.blade.php" />
+         <option value="$PROJECT_DIR$/public/js/markdown-js-master/inc/header.js" />
+         <option value="$PROJECT_DIR$/public/js/require.js" />
+         <option value="$PROJECT_DIR$/resources/views/common/bootstrap_v3.blade.php" />
+         <option value="$PROJECT_DIR$/resources/views/admin/article/add.blade.php" />
++        <option value="$PROJECT_DIR$/app/Http/routes.php" />
++        <option value="$PROJECT_DIR$/resources/views/admin/article/manage.blade.php" />
++        <option value="$PROJECT_DIR$/app/Http/Controllers/Admin/ArticleController.php" />
++        <option value="$PROJECT_DIR$/resources/views/admin/article/edit.blade.php" />
++        <option value="$PROJECT_DIR$/resources/views/common/main.blade.php" />
+       </list>
+     </option>
+   </component>
+@@ -184,10 +184,6 @@
+       <foldersAlwaysOnTop value="true" />
+     </navigator>
+     <panes>
+-      <pane id="Scope">
+-        <subPane subId="Project Files" />
+-      </pane>
+-      <pane id="Scratches" />
+       <pane id="ProjectPane">
+         <subPane>
+           <PATH>
+@@ -216,13 +212,9 @@
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="resources" />
++              <option name="myItemId" value="vendor" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+-            <PATH_ELEMENT>
+-              <option name="myItemId" value="views" />
+-              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+-            </PATH_ELEMENT>
+           </PATH>
+           <PATH>
+             <PATH_ELEMENT>
+@@ -234,15 +226,15 @@
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="resources" />
++              <option name="myItemId" value="vendor" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="views" />
++              <option name="myItemId" value="laravel" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="common" />
++              <option name="myItemId" value="framework" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+           </PATH>
+@@ -256,17 +248,25 @@
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="resources" />
++              <option name="myItemId" value="vendor" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="views" />
++              <option name="myItemId" value="laravel" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="admin" />
++              <option name="myItemId" value="framework" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="src" />
++              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
++            </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="Illuminate" />
++              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
++            </PATH_ELEMENT>
+           </PATH>
+           <PATH>
+             <PATH_ELEMENT>
+@@ -278,21 +278,29 @@
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="resources" />
++              <option name="myItemId" value="vendor" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="views" />
++              <option name="myItemId" value="laravel" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="admin" />
++              <option name="myItemId" value="framework" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="category" />
++              <option name="myItemId" value="src" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="Illuminate" />
++              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
++            </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="Routing" />
++              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
++            </PATH_ELEMENT>
+           </PATH>
+           <PATH>
+             <PATH_ELEMENT>
+@@ -311,14 +319,6 @@
+               <option name="myItemId" value="views" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+-            <PATH_ELEMENT>
+-              <option name="myItemId" value="admin" />
+-              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+-            </PATH_ELEMENT>
+-            <PATH_ELEMENT>
+-              <option name="myItemId" value="article" />
+-              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+-            </PATH_ELEMENT>
+           </PATH>
+           <PATH>
+             <PATH_ELEMENT>
+@@ -333,6 +333,14 @@
+               <option name="myItemId" value="resources" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="views" />
++              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
++            </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="common" />
++              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
++            </PATH_ELEMENT>
+           </PATH>
+           <PATH>
+             <PATH_ELEMENT>
+@@ -344,9 +352,17 @@
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="public" />
++              <option name="myItemId" value="resources" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="views" />
++              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
++            </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="admin" />
++              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
++            </PATH_ELEMENT>
+           </PATH>
+           <PATH>
+             <PATH_ELEMENT>
+@@ -358,13 +374,21 @@
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="public" />
++              <option name="myItemId" value="resources" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="js" />
++              <option name="myItemId" value="views" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="admin" />
++              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
++            </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="article" />
++              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
++            </PATH_ELEMENT>
+           </PATH>
+           <PATH>
+             <PATH_ELEMENT>
+@@ -376,15 +400,21 @@
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="public" />
++              <option name="myItemId" value="resources" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
++          </PATH>
++          <PATH>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="js" />
++              <option name="myItemId" value="laravel" />
++              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
++            </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="laravel" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="markdown-js-master" />
++              <option name="myItemId" value="public" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+           </PATH>
+@@ -402,17 +432,27 @@
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="js" />
++              <option name="myItemId" value="jquery" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="markdown-js-master" />
++              <option name="myItemId" value="1.11.3" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
++          </PATH>
++          <PATH>
+             <PATH_ELEMENT>
+-              <option name="myItemId" value="src" />
++              <option name="myItemId" value="laravel" />
++              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
++            </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="laravel" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="app" />
++              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
++            </PATH_ELEMENT>
+           </PATH>
+           <PATH>
+             <PATH_ELEMENT>
+@@ -427,9 +467,17 @@
+               <option name="myItemId" value="app" />
+               <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
+             </PATH_ELEMENT>
++            <PATH_ELEMENT>
++              <option name="myItemId" value="Http" />
++              <option name="myItemType" value="com.jetbrains.php.projectView.PhpTreeStructureProvider$1" />
++            </PATH_ELEMENT>
+           </PATH>
+         </subPane>
+       </pane>
++      <pane id="Scratches" />
++      <pane id="Scope">
++        <subPane subId="Project Files" />
++      </pane>
+     </panes>
+   </component>
+   <component name="PropertiesComponent">
+@@ -441,8 +489,8 @@
+     <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+     <property name="settings.editor.splitter.proportion" value="0.2" />
+     <property name="js-jscs-nodeInterpreter" value="/usr/local/bin/node" />
+-    <property name="FullScreen" value="true" />
+     <property name="nodejs_interpreter_path" value="/usr/local/bin/node" />
++    <property name="FullScreen" value="true" />
+   </component>
+   <component name="RecentsManager">
+     <key name="MoveFile.RECENT_KEYS">
+@@ -524,19 +572,28 @@
+       <option name="number" value="Default" />
+       <option name="presentableId" value="Default" />
+       <updated>1464762802425</updated>
+-      <workItem from="1477114816971" duration="5375000" />
++      <workItem from="1477114816971" duration="5592000" />
++      <workItem from="1477202786573" duration="3614000" />
+     </task>
++    <task id="LOCAL-00001" summary="后台markdown.js 解析添加,通过require.js 引入">
++      <created>1477144492023</created>
++      <option name="number" value="00001" />
++      <option name="presentableId" value="LOCAL-00001" />
++      <option name="project" value="LOCAL" />
++      <updated>1477144492023</updated>
++    </task>
++    <option name="localTasksCounter" value="2" />
+     <servers />
+   </component>
+   <component name="TimeTrackingManager">
+-    <option name="totallyTimeSpent" value="5375000" />
++    <option name="totallyTimeSpent" value="9206000" />
+   </component>
+   <component name="ToolWindowManager">
+     <frame x="0" y="0" width="1280" height="800" extended-state="0" />
+     <editor active="true" />
+     <layout>
+       <window_info id="Gulp" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
+-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2746365" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
++      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.2786753" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+       <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+@@ -568,6 +625,10 @@
+   <component name="VcsContentAnnotationSettings">
+     <option name="myLimit" value="2678400000" />
+   </component>
++  <component name="VcsManagerConfiguration">
++    <MESSAGE value="后台markdown.js 解析添加,通过require.js 引入" />
++    <option name="LAST_COMMIT_MESSAGE" value="后台markdown.js 解析添加,通过require.js 引入" />
++  </component>
+   <component name="XDebuggerManager">
+     <breakpoint-manager>
+       <option name="time" value="2" />
+@@ -575,13 +636,6 @@
+     <watches-manager />
+   </component>
+   <component name="editorHistoryManager">
+-    <entry file="file://$PROJECT_DIR$/app/Http/Middleware/EncryptCookies.php">
+-      <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="0">
+-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+-        </state>
+-      </provider>
+-    </entry>
+     <entry file="file://$PROJECT_DIR$/app/Http/Kernel.php">
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="0">
+@@ -645,13 +699,6 @@
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/app/Http/Controllers/Admin/ArticleController.php">
+-      <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="0">
+-          <caret line="33" column="69" selection-start-line="33" selection-start-column="69" selection-end-line="33" selection-end-column="69" />
+-        </state>
+-      </provider>
+-    </entry>
+     <entry file="file://$PROJECT_DIR$/app/Http/Controllers/Index/NaviController.php">
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="0">
+@@ -666,13 +713,6 @@
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/app/Http/Controllers/Admin/AdminController.php">
+-      <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="0">
+-          <caret line="89" column="41" selection-start-line="89" selection-start-column="28" selection-end-line="89" selection-end-column="41" />
+-        </state>
+-      </provider>
+-    </entry>
+     <entry file="file://$PROJECT_DIR$/config/app.php">
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="0">
+@@ -680,19 +720,10 @@
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/app/Http/routes.php">
+-      <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="105">
+-          <caret line="7" column="23" selection-start-line="7" selection-start-column="23" selection-end-line="7" selection-end-column="23" />
+-          <folding />
+-        </state>
+-      </provider>
+-    </entry>
+     <entry file="file://$PROJECT_DIR$/resources/views/index/search.blade.php">
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="90">
+           <caret line="6" column="21" selection-start-line="6" selection-start-column="21" selection-end-line="6" selection-end-column="21" />
+-          <folding />
+         </state>
+       </provider>
+     </entry>
+@@ -700,9 +731,6 @@
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="15">
+           <caret line="10" column="17" selection-start-line="10" selection-start-column="17" selection-end-line="10" selection-end-column="17" />
+-          <folding>
+-            <element signature="e#44#53#0#PHP" expanded="false" />
+-          </folding>
+         </state>
+       </provider>
+     </entry>
+@@ -710,7 +738,6 @@
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="-615">
+           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+-          <folding />
+         </state>
+       </provider>
+     </entry>
+@@ -718,18 +745,9 @@
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="15">
+           <caret line="1" column="14" selection-start-line="1" selection-start-column="14" selection-end-line="1" selection-end-column="14" />
+-          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/public/js/vue.js">
+-      <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="0">
+-          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+-          <folding />
+-        </state>
+-      </provider>
+-    </entry>
+     <entry file="file://$PROJECT_DIR$/app/Providers/AppServiceProvider.php">
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="0">
+@@ -746,19 +764,10 @@
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/resources/views/admin/article/manage.blade.php">
+-      <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="345">
+-          <caret line="23" column="120" selection-start-line="23" selection-start-column="120" selection-end-line="23" selection-end-column="120" />
+-          <folding />
+-        </state>
+-      </provider>
+-    </entry>
+     <entry file="file://$PROJECT_DIR$/public/js/markdown-js-master/bin/md2html.js">
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="0">
+           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+-          <folding />
+         </state>
+       </provider>
+     </entry>
+@@ -774,7 +783,6 @@
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="0">
+           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+-          <folding />
+         </state>
+       </provider>
+     </entry>
+@@ -798,7 +806,6 @@
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="0">
+           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+-          <folding />
+         </state>
+       </provider>
+     </entry>
+@@ -806,7 +813,6 @@
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="0">
+           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+-          <folding />
+         </state>
+       </provider>
+     </entry>
+@@ -824,7 +830,6 @@
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="30">
+           <caret line="2" column="63" selection-start-line="2" selection-start-column="63" selection-end-line="2" selection-end-column="63" />
+-          <folding />
+         </state>
+       </provider>
+     </entry>
+@@ -832,57 +837,20 @@
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="105">
+           <caret line="7" column="17" selection-start-line="7" selection-start-column="17" selection-end-line="7" selection-end-column="17" />
+-          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/resources/views/admin/body.blade.php">
+-      <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="75">
+-          <caret line="5" column="15" selection-start-line="5" selection-start-column="15" selection-end-line="5" selection-end-column="15" />
+-          <folding />
+-        </state>
+-      </provider>
+-    </entry>
+     <entry file="file://$PROJECT_DIR$/resources/views/admin/navi.blade.php">
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="90">
+           <caret line="6" column="38" selection-start-line="6" selection-start-column="38" selection-end-line="6" selection-end-column="38" />
+-          <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/resources/views/admin/main.blade.php">
+-      <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="60">
+-          <caret line="4" column="30" selection-start-line="4" selection-start-column="30" selection-end-line="4" selection-end-column="30" />
+-          <folding />
+-        </state>
+-      </provider>
+-    </entry>
+-    <entry file="file://$PROJECT_DIR$/resources/views/common/bootstrap_v3.blade.php">
+-      <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="180">
+-          <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
+-          <folding />
+-        </state>
+-      </provider>
+-    </entry>
+-    <entry file="file://$PROJECT_DIR$/resources/views/admin/article/edit.blade.php">
+-      <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="284">
+-          <caret line="42" column="10" selection-start-line="42" selection-start-column="10" selection-end-line="42" selection-end-column="10" />
+-          <folding>
+-            <marker date="1471178237000" expanded="true" signature="4983:4994" ph="..." />
+-          </folding>
+-        </state>
+-      </provider>
+-    </entry>
+     <entry file="file://$PROJECT_DIR$/resources/views/index/article.blade.php">
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="120">
+           <caret line="8" column="17" selection-start-line="8" selection-start-column="17" selection-end-line="8" selection-end-column="17" />
+-          <folding />
+         </state>
+       </provider>
+     </entry>
+@@ -890,7 +858,6 @@
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="45">
+           <caret line="3" column="50" selection-start-line="3" selection-start-column="50" selection-end-line="3" selection-end-column="50" />
+-          <folding />
+         </state>
+       </provider>
+     </entry>
+@@ -898,7 +865,6 @@
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="330">
+           <caret line="22" column="48" selection-start-line="22" selection-start-column="48" selection-end-line="22" selection-end-column="48" />
+-          <folding />
+         </state>
+       </provider>
+     </entry>
+@@ -906,7 +872,6 @@
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="0">
+           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="19" selection-end-column="5" />
+-          <folding />
+         </state>
+       </provider>
+     </entry>
+@@ -914,7 +879,6 @@
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="60">
+           <caret line="4" column="35" selection-start-line="4" selection-start-column="35" selection-end-line="4" selection-end-column="35" />
+-          <folding />
+         </state>
+       </provider>
+     </entry>
+@@ -922,9 +886,6 @@
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="120">
+           <caret line="8" column="15" selection-start-line="8" selection-start-column="15" selection-end-line="8" selection-end-column="15" />
+-          <folding>
+-            <element signature="n#!!doc" expanded="true" />
+-          </folding>
+         </state>
+       </provider>
+     </entry>
+@@ -940,41 +901,122 @@
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="0">
+           <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+-          <folding />
+         </state>
+       </provider>
+     </entry>
+     <entry file="file://$PROJECT_DIR$/public/js/markdown-js-master/src/core.js">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="-329">
++        <state relative-caret-position="0">
+           <caret line="0" column="17" selection-start-line="0" selection-start-column="11" selection-end-line="0" selection-end-column="17" />
+           <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/resources/views/common/main.blade.php">
++    <entry file="file://$PROJECT_DIR$/public/js/markdown-js-master/src/markdown.js">
+       <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="75">
+-          <caret line="5" column="52" selection-start-line="5" selection-start-column="52" selection-end-line="5" selection-end-column="52" />
++          <caret line="5" column="18" selection-start-line="5" selection-start-column="18" selection-end-line="5" selection-end-column="18" />
+           <folding />
+         </state>
+       </provider>
+     </entry>
+-    <entry file="file://$PROJECT_DIR$/public/js/markdown-js-master/src/markdown.js">
++    <entry file="file://$PROJECT_DIR$/public/js/vue.js">
+       <provider selected="true" editor-type-id="text-editor">
++        <state relative-caret-position="-44115">
++          <caret line="14" column="13" selection-start-line="14" selection-start-column="13" selection-end-line="14" selection-end-column="13" />
++          <folding />
++        </state>
++      </provider>
++    </entry>
++    <entry file="file://$PROJECT_DIR$/resources/views/admin/body.blade.php">
++      <provider selected="true" editor-type-id="text-editor">
+         <state relative-caret-position="75">
+-          <caret line="5" column="18" selection-start-line="5" selection-start-column="18" selection-end-line="5" selection-end-column="18" />
++          <caret line="5" column="15" selection-start-line="5" selection-start-column="15" selection-end-line="5" selection-end-column="15" />
+           <folding />
+         </state>
+       </provider>
+     </entry>
++    <entry file="file://$PROJECT_DIR$/resources/views/common/bootstrap_v3.blade.php">
++      <provider selected="true" editor-type-id="text-editor">
++        <state relative-caret-position="180">
++          <caret line="12" column="0" selection-start-line="12" selection-start-column="0" selection-end-line="12" selection-end-column="0" />
++          <folding />
++        </state>
++      </provider>
++    </entry>
++    <entry file="file://$PROJECT_DIR$/resources/views/admin/main.blade.php">
++      <provider selected="true" editor-type-id="text-editor">
++        <state relative-caret-position="60">
++          <caret line="4" column="30" selection-start-line="4" selection-start-column="30" selection-end-line="4" selection-end-column="30" />
++          <folding />
++        </state>
++      </provider>
++    </entry>
++    <entry file="file://$PROJECT_DIR$/app/Http/Controllers/Admin/AdminController.php">
++      <provider selected="true" editor-type-id="text-editor">
++        <state relative-caret-position="390">
++          <caret line="117" column="33" selection-start-line="117" selection-start-column="33" selection-end-line="117" selection-end-column="33" />
++          <folding />
++        </state>
++      </provider>
++    </entry>
++    <entry file="file://$PROJECT_DIR$/vendor/laravel/framework/src/Illuminate/Routing/RouteCollection.php">
++      <provider selected="true" editor-type-id="text-editor">
++        <state relative-caret-position="307">
++          <caret line="203" column="30" selection-start-line="203" selection-start-column="22" selection-end-line="203" selection-end-column="30" />
++          <folding />
++        </state>
++      </provider>
++    </entry>
++    <entry file="file://$PROJECT_DIR$/app/Http/Controllers/Admin/ArticleController.php">
++      <provider selected="true" editor-type-id="text-editor">
++        <state relative-caret-position="562">
++          <caret line="108" column="27" selection-start-line="108" selection-start-column="27" selection-end-line="108" selection-end-column="27" />
++          <folding />
++        </state>
++      </provider>
++    </entry>
++    <entry file="file://$PROJECT_DIR$/app/Http/routes.php">
++      <provider selected="true" editor-type-id="text-editor">
++        <state relative-caret-position="435">
++          <caret line="47" column="77" selection-start-line="47" selection-start-column="68" selection-end-line="47" selection-end-column="77" />
++          <folding />
++        </state>
++      </provider>
++    </entry>
++    <entry file="file://$PROJECT_DIR$/resources/views/admin/article/edit.blade.php">
++      <provider selected="true" editor-type-id="text-editor">
++        <state relative-caret-position="442">
++          <caret line="200" column="23" selection-start-line="200" selection-start-column="23" selection-end-line="200" selection-end-column="23" />
++          <folding>
++            <marker date="1477212834000" expanded="true" signature="5308:5319" ph="..." />
++          </folding>
++        </state>
++      </provider>
++    </entry>
++    <entry file="file://$PROJECT_DIR$/resources/views/admin/article/manage.blade.php">
++      <provider selected="true" editor-type-id="text-editor">
++        <state relative-caret-position="554">
++          <caret line="53" column="41" selection-start-line="53" selection-start-column="41" selection-end-line="53" selection-end-column="41" />
++          <folding />
++        </state>
++      </provider>
++    </entry>
+     <entry file="file://$PROJECT_DIR$/resources/views/admin/article/add.blade.php">
+       <provider selected="true" editor-type-id="text-editor">
+-        <state relative-caret-position="209">
+-          <caret line="43" column="10" selection-start-line="43" selection-start-column="10" selection-end-line="43" selection-end-column="10" />
++        <state relative-caret-position="-90">
++          <caret line="31" column="16" selection-start-line="31" selection-start-column="16" selection-end-line="31" selection-end-column="16" />
+           <folding>
+             <marker date="1477144408000" expanded="true" signature="4602:4613" ph="..." />
+           </folding>
++        </state>
++      </provider>
++    </entry>
++    <entry file="file://$PROJECT_DIR$/resources/views/common/main.blade.php">
++      <provider selected="true" editor-type-id="text-editor">
++        <state relative-caret-position="75">
++          <caret line="5" column="52" selection-start-line="5" selection-start-column="52" selection-end-line="5" selection-end-column="52" />
++          <folding />
+         </state>
+       </provider>
+     </entry>
+\ No newline at end of file
