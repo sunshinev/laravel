@@ -16,7 +16,7 @@ class ArticleController extends Controller
      * 保存通用方法
      * 内部区分第一次保存，还是自动保存
      * */
-    public function save($request) {
+    public function save(Request $request) {
         $article_title = $request->input('article_title');
         $article_content = $request->input('article_content');
         $article_sign = trim($request->input('article_sign'));
