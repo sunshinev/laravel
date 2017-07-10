@@ -66,7 +66,7 @@ class ArticleController extends Controller {
                 return ['res' => 101, 'msg' => '保存草稿失败'];
             }
 
-            return ['res' => 100, 'msg' => '成功', 'article_id' => $article->id];
+            return ['res' => 100, 'msg' => '成功', 'article_id' => $article->article_id];
         }
     }
 
