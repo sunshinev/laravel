@@ -57,7 +57,7 @@
         })
         var Editor = (function() {
 
-            var article_id = '{{ $article_info->id }}';
+            var article_id = '{{ $article_info->article_id }}';
 
             var _getTitle = function() {
                 return document.getElementById('article_title').value;
