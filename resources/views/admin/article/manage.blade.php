@@ -17,12 +17,12 @@
                     <td>{{$item->created_at}}</td>
                     <td>
                         @if( $item->status=='publish' )
-                            <button class="btn btn-sm btn-info" onclick="Editor.draft('{{ $item->id }}')">下架</button>
+                            <button class="btn btn-sm btn-info" onclick="Editor.draft('{{ $item->article_id }}')">下架</button>
                         @else
-                            <button class="btn btn-sm btn-primary" onclick="Editor.publish('{{ $item->id }}')">发布</button>
+                            <button class="btn btn-sm btn-primary" onclick="Editor.publish('{{ $item->article_id }}')">发布</button>
                         @endif
                         <button class="btn btn-sm btn-success" onclick="window.location.href='{{ URL::to('admin/article/edit/'.$item->id)}}'">编辑</button>
-                            <button class="btn btn-sm btn-danger" onclick="Editor.remove('{{$item->id}}')">删除</button>
+                            <button class="btn btn-sm btn-danger" onclick="Editor.remove('{{$item->article_id}}')">删除</button>
                     </td>
                 </tr>
             @endforeach

@@ -5,7 +5,7 @@
             @foreach ($article_list as $key=>$item)
                 <div class="row">
                     <div class="col-md-12">
-                        <h3><a href="{{ URL::to('article/'.$item->id) }}">#{{ $item->article_title }}</a></h3>
+                        <h3><a href="{{ URL::to('article/'.$item->article_id) }}">#{{ $item->article_title }}</a></h3>
                         <div>
                         @foreach($item->article_sign as $sign)
                             <kbd>{{ $sign }}</kbd>

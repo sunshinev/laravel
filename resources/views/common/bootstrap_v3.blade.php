@@ -8,5 +8,5 @@
 <script src="{{ asset('/bootstrap/3.3.5/js/bootstrap.min.js') }}"></script>
 
 <!-- bootstrap_submenu -->
-<link rel="stylesheet" href="{{ asset('bootstrap/bootstrap-submenu/dist/css/bootstrap-submenu.min.css') }}">
+<link rel="stylesheet" href="{{ asset('/bootstrap/bootstrap-submenu/dist/css/bootstrap-submenu.min.css') }}">
 <script src="{{ asset('/bootstrap/bootstrap-submenu/dist/js/bootstrap-submenu.min.js') }}"></script>

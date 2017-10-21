@@ -988,7 +988,7 @@ class HyperDownController extends Controller
         list ($ignores, $aligns) = $value;
         $head = count($ignores) > 0 && array_sum($ignores) > 0;
 
-        $html = '<table>';
+        $html = '<table class="table">';
         $body = $head ? NULL : true;
         $output = false;
 

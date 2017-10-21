@@ -32,7 +32,7 @@ class IndexController extends Controller
      */
     public function article(Request $request) {
         $article_id = $request->article_id;
-        $article_info = Article::where('id',$article_id)
+        $article_info = Article::where('article_id',$article_id)
             ->where('status','=','publish')
             ->first();
         if(!count($article_info)) {

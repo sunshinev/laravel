@@ -6,6 +6,8 @@
  * @author   Taylor Otwell <taylorotwell@gmail.com>
  */
 
+ini_set("display_errors",E_ALL);
+
 /*
 |--------------------------------------------------------------------------
 | Register The Auto Loader

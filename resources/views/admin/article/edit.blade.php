@@ -50,14 +50,14 @@
     </div>
     <script>
         require.config({
-            baseUrl:'{{asset('js/markdown-js-master/src')}}',
-            paths:{
-                markdown:'markdown'
+            baseUrl:'{{ asset('js/marked/lib/') }}',
+            paths: {
+                "marked": "marked"
             }
         })
         var Editor = (function() {
 
-            var article_id = '{{ $article_info->id }}';
+            var article_id = '{{ $article_info->article_id }}';
 
             var _getTitle = function() {
                 return document.getElementById('article_title').value;
@@ -218,9 +218,22 @@
                 })
             }
 
+
             var mark = function() {
-                require(['markdown'],function(markdown){
-                    $('#markdown_layer').html(markdown.toHTML(_getContent()));
+
+                require(['marked'], function (marked) {
+                    marked.setOptions({
+                        renderer: new marked.Renderer(),
+                        gfm: true,
+                        tables: true,
+                        breaks: false,
+                        pedantic: false,
+                        sanitize: false,
+                        smartLists: true,
+                        smartypants: false
+                    });
+
+                    $("#markdown_layer").html(marked(_getContent()));
                 });
             }
 

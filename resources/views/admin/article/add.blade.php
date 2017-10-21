@@ -46,9 +46,9 @@
     <script>
 
     require.config({
-        baseUrl:'{{ asset('js/markdown-js-master/src/') }}',
+        baseUrl:'{{ asset('js/marked/lib/') }}',
         paths: {
-            "markdown": "markdown"
+            "marked": "marked"
         }
 
     });
@@ -195,9 +195,25 @@
         }
 
         var mark = function() {
-            require(['markdown'],function(markdown) {
-                $("#markdown_layer").html(markdown.toHTML(_getContent()));
+
+        require(['marked'],function(marked){
+            marked.setOptions({
+                renderer: new marked.Renderer(),
+                gfm: true,
+                tables: true,
+                breaks: false,
+                pedantic: false,
+                sanitize: false,
+                smartLists: true,
+                smartypants: false
             });
+
+            $("#markdown_layer").html(marked(_getContent()));
+        });
+
+
+
+
         }
 
         return {
