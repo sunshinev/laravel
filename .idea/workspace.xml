@@ -2241,7 +2241,7 @@
       <workItem from="1477202786573" duration="6419000" />
       <workItem from="1478356593109" duration="709000" />
       <workItem from="1478424250086" duration="4367000" />
-      <workItem from="1508597357071" duration="688000" />
+      <workItem from="1508597357071" duration="772000" />
     </task>
     <task id="LOCAL-00001" summary="后台markdown.js 解析添加,通过require.js 引入">
       <created>1477144492023</created>
@@ -2285,11 +2285,18 @@
       <option name="project" value="LOCAL" />
       <updated>1508598070059</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="线上环境关闭注册路由">
+      <created>1508598273707</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1508598273707</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="17775000" />
+    <option name="totallyTimeSpent" value="17859000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="1280" height="800" extended-state="0" />
