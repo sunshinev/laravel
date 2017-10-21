@@ -18,7 +18,7 @@ Route::group(['middleware'=>'navi'],function() {
     Route::get('/','Index\IndexController@index');
     Route::get('/article/{article_id}','Index\IndexController@article');
     Route::get('/article/list/{category_id}','Index\IndexController@searchArticle');
-    Route::get('/article/search/{keywords}','index\IndexController@search');
+    Route::get('/article/search/{keywords}','Index\IndexController@search');
 });
 
 // 认证路由
