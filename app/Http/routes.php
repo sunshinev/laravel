@@ -24,6 +24,7 @@ Route::group(['middleware' => 'navi'], function () {
     Route::get('/article/{article_id}', 'Index\IndexController@article');
     Route::get('/article/list/{category_id}', 'Index\IndexController@searchArticle');
     Route::get('/article/search/{keywords}', 'Index\IndexController@search');
+    Route::get('/kafka/index', 'Test\KafkaController@index');
 
 });
 
