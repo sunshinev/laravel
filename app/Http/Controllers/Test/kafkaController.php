@@ -19,6 +19,10 @@ class kafkaController extends Controller
         //
         $config = \Kafka\ProducerConfig::getInstance();
         $config->setMetadataBrokerList('60.205.183.42:9092');
+        $config->setRequiredAck(1);
+        $config->setIsAsyn(false);
+        $config->setProduceInterval(500);
+        $config->setMetadataRefreshIntervalMs(10000);
 
         $producer = new \Kafka\Producer(function() {
             return array(
@@ -30,10 +34,10 @@ class kafkaController extends Controller
             );
         });
         $producer->success(function($result) {
-            var_dump($result);
+            var_dump('success',$result);
         });
         $producer->error(function($errorCode) {
-            var_dump($errorCode);
+            var_dump('error',$errorCode);
         });
         $producer->send(true);
 
